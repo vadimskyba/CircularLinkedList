@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include "CircularList.h"
 #include <iostream>
 
@@ -30,10 +30,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	mylist2.Print();
 	cout << endl;
 
-	mylist1.Insert(mylist2); // слияние списков 
-	mylist1.Sort();			// сортировка итогового списка по убыванию
+	mylist1.Insert(mylist2); // СЃР»РёСЏРЅРёРµ СЃРїРёСЃРєРѕРІ 
+	mylist1.Sort();			// СЃРѕСЂС‚РёСЂРѕРІРєР° РёС‚РѕРіРѕРІРѕРіРѕ СЃРїРёСЃРєР° РїРѕ СѓР±С‹РІР°РЅРёСЋ
 
-	cout << "MyList1:" << endl;	// вывод итогового списка
+	cout << "MyList1:" << endl;	// РІС‹РІРѕРґ РёС‚РѕРіРѕРІРѕРіРѕ СЃРїРёСЃРєР°
 	mylist1.Print();
 
 	return 0;
