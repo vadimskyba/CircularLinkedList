@@ -1,40 +1,31 @@
 ﻿#include "stdafx.h"
 #include "CircularList.h"
 #include <iostream>
+#include <string>
 
 using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	clist <int> mylist1;
-	mylist1.Insert(3);
-	mylist1.Insert(5);
-	mylist1.Insert(2);
-	mylist1.Insert(4);
-	mylist1.Insert(1);
-	mylist1.Insert(2);
 
-	clist <int> mylist2;
-	mylist2.Insert(30);
-	mylist2.Insert(50);
-	mylist2.Insert(20);
-	mylist2.Insert(40);
-	mylist2.Insert(10);
-	mylist2.Insert(20);
+	double vList1[] = { 1.1, 2.2, 3.3 };
+	double vList2[] = { 11.1, 22.2, 33.3 };
+	clist <double> mylist1(vList1, 3);
+	clist <double> mylist2(vList2, 3);
 
 	cout << "MyList1:" << endl;
 	mylist1.Print();
 	cout << endl;
-
+		
 	cout << "MyList2:" << endl;
 	mylist2.Print();
 	cout << endl;
 
-	mylist1.Insert(mylist2); // слияние списков 
-	mylist1.Sort();			// сортировка итогового списка по убыванию
+	mylist1.Merge(mylist2); // слияние списков 
 
 	cout << "MyList1:" << endl;	// вывод итогового списка
 	mylist1.Print();
+	cout << endl;
 
 	return 0;
 }

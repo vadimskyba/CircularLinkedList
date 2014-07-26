@@ -6,7 +6,7 @@ class clist
 	struct ELEMENT		// Структура элемент списка
 	{
 		T data;			// Данные элемента списка
-		ELEMENT *next;	// Указатель на следующий єлемент списка
+		ELEMENT *next;	// Указатель на следующий элемент списка
 	};
 
 private:
@@ -15,21 +15,20 @@ private:
 
 public:
 	clist();	// Конструктор
-	clist(clist<T> &src_list); // Конструктор с инициализацие: добавление элементов из источника src_list
+	clist(T *data, int dataSize); // Конструктор с инициализацией по массиву
 	~clist();	// Деструктор
 
 	int Size();		// Размер списка
 	T Current();	// Текущий элемент списка
-	void Insert(const T data);	// Добавить элемент 
+	void Insert(const T data);	// Добавить элемент после текущего
 	void operator +(const T data);	// Добавить элемент с помощью оператора +
-	void Insert(clist<T> &src_list);	// Слияние списков
+	void Merge(clist<T> &src_list);		// Слияние списков. После слияния src_list не содержит элементов.
 	T Remove();		// Удаление элемента списка
 	void Clear();	// Очистка списка
-	void Next();	// Смещение указателя списка на следующий єлемент
+	void Next();	// Смещение указателя списка на следующий элемент
 	void Prev();	// Смещение указателя списка на предыдущий элемент
 	bool Empty();	// Список пуст?
 	void Print();	// Вывод списка в поток
-	void Sort(bool bAscending = false);	// Сортировка списка
 };
 
 template <class T>
@@ -40,10 +39,11 @@ clist<T>::clist()
 }
 
 template <class T>
-clist<T>::clist(clist<T> &src_list)
+clist<T>::clist(T *data, int dataSize)
 	: clist<T>::clist()
 {
-	Insert(src_list);
+	for (int i = 0; i < dataSize; i++)
+		Insert(data[i]);
 }
 
 template <class T>
@@ -79,14 +79,9 @@ void clist<T>::Insert(const T data)
 	}
 	else // список не пуст
 	{
-		newElement->next = current;
-
-		// Циклически ищем предыдущий элемент 
-		ELEMENT *prev = current;
-		while (prev->next != current)
-			prev = prev->next;
-
-		prev->next = newElement; // и устанавливаем указатель сдедующего элемента ->next на новый элемент newElement
+		ELEMENT *next = current->next;
+		current->next = newElement;
+		newElement->next = next;
 	}
 
 	current = newElement; // указатель на текущий элемент списка указывает на новый элемент
@@ -100,20 +95,20 @@ void clist<T>::operator +(const T data)
 }
 
 template <class T>
-void clist<T>::Insert(clist<T> &src_list)
+void clist<T>::Merge(clist<T> &src_list)
 {
 	if (src_list.Empty())
 		return;
 
-	Insert(src_list.current->data);				// Вставляем текущий элемент списка src_list
+	ELEMENT *next = src_list.current->next;
+	src_list.current->next = current->next;
+	current->next = next;
 
-	// Циклически вставляем последующие элементы, пока не упремся в текущий элемент списка src_list
-	ELEMENT *src_next = src_list.current;		
-	while (src_next->next != src_list.current)
-	{
-		Insert(src_next->next->data);
-		src_next = src_next->next;
-	}
+	size += src_list.size;
+
+	// clean src_list
+	src_list.current = NULL;
+	src_list.size = 0;
 }
 
 template <class T>
@@ -122,28 +117,27 @@ T clist<T>::Remove()
 	if (Empty())
 		return NULL;
 
-	T data = current->data;		// сохраняем для возврата данные удаляемого элемента
-	ELEMENT *tmp = current;		// копируем текущий удаляемый элемент на временную переменную
+	T data = current->data;			// сохраняем для возврата данные удаляемого элемента
 
-	if (size == 1)				// В списке будет удален последний элемент
+	if (size == 1)
 	{
-		current = NULL;			// значит указатель текущего элемента обнуляем
+		delete current;
 	}
-	else
+	else // размер списка больше 1 элемента
 	{
-		// Циклически ищем предыдущий элемент и устанавливаем указатель сдедующего элемента ->next на следующий за current элемент
-		ELEMENT *prev = current;
-		while (prev->next != current)
-			prev = prev->next;
-		prev->next = current->next;
+		ELEMENT *next = current->next;
 
-		current = current->next;	// перенаправляем текущий элемент на следующий
+		current->data = current->next->data;
+		current->next = current->next->next;
+		delete next;
 	}
 
-	delete tmp;					// удаляем временной элемент
-	size--;						// уменшаем размер списка
+	size--;
 
-	return data;				// возвращаем данные удаленного элемента
+	if (size == 0)
+		current = NULL;
+
+	return data;
 }
 
 template <class T>
@@ -166,7 +160,6 @@ void clist<T>::Prev()
 	if (Empty())
 		return;
 
-	
 	ELEMENT *prev = current;
 	while (prev->next != current) // Предыдущий элемент списка ищем в прямой последовательности перебором всех элементов
 		prev = prev->next;
@@ -184,50 +177,16 @@ void clist<T>::Print()
 {
 	if (Empty())
 	{
-		cout << "Список пуст" << endl;
+		cout << "List is empty." << endl;
 		return;
 	}
 
 	ELEMENT *next = current;
-	cout << next->data << endl;
+	cout << next->data << " ";
 	while (next->next != current)
 	{
-		cout << next->next->data << endl;
+		cout << next->next->data << " ";
 		next = next->next;
 	}
 }
 
-template <class T>
-void clist<T>::Sort(bool bAscending = false)
-{
-	if (Empty())
-		return;
-
-	clist<T> sortedList; // Временный список, содержащий отсортированные элементы
-
-	while (!Empty())	// Рекурсивно делаем проходы списка, пока он не обнулится
-	{
-		ELEMENT *sortedElement = current; // элемент списка, который содержит макс. (bAscending == false) или мин. (bAscending == true) значение данных (в зависимости от bAscending)
-		ELEMENT *next = current;
-
-		while (next->next != current)	// Далаем проход списка и ищем макс. или мин. значение 
-		{
-			if (bAscending) // Восходящая сортировка
-			{
-				if (next->next->data < sortedElement->data)
-					sortedElement = next->next;
-			}
-			else // Убывающая сортировка
-			{
-				if (next->next->data > sortedElement->data)
-					sortedElement = next->next;
-			}
-
-			next = next->next;
-		}
-		current = sortedElement;
-		sortedList.Insert(Remove()); // Перемещаем текущий элемент во временный список
-	}
-
-	Insert(sortedList);	// Копируем элементы временного отсортированного в текущий список
-}
